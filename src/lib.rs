@@ -1,3 +1,4 @@
+use crate::wrapper::*;
 use std::ffi::c_void;
 
 mod wrapper;
@@ -8,7 +9,7 @@ struct DYL {
 }
 
 impl DYL {
-    pub fn new(_name: String) -> Self {
+    pub fn new(_name: &str) -> Self {
         return DYL {
             bytes: 3,
             handle: DYL::open(_name),
@@ -16,14 +17,9 @@ impl DYL {
     }
 
     /// Opens the actual file
-    fn open(name: String) -> HMODULE {
-        unsafe {
-            LoadLibraryExW(
-                name.encode_utf16().collect::<Vec<u16>>().as_ptr(),
-                ptr::null(),
-                0,
-            )
-        }
+    fn open(name: &str) -> *const c_void {
+        load_library(name)
+            .expect(format!("Error in lib.rs. Line {}", line!()).as_str())
     }
 }
 
@@ -33,7 +29,8 @@ mod tests {
 
     #[test]
     fn creates_some_object() {
-        let newdyl: DYL = DYL::new("Something".to_string());
+        let newdyl: DYL = DYL::new("./target/debug/libdylopen.rlib");
+        dbg!("AAAAAAAAAAAAAAAAAAAA");
     }
 
     #[test]
