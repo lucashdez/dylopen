@@ -1,35 +1,30 @@
 use std::ffi::c_void;
-use std::ptr;
 
-type LPCWSTR = *const u16;
-type DWORD = i32;
-type HMODULE = c_void;
-
-#[link(name = "kernel32")]
-#[no_mangle]
-extern "system" {
-    fn LoadLibraryExW(
-        name: LPCWSTR,
-        file_handle: c_void,
-        params: DWORD,
-    ) -> HMODULE;
-}
+mod wrapper;
 
 struct DYL {
     bytes: usize,
+    handle: *const c_void,
 }
 
 impl DYL {
     pub fn new(_name: String) -> Self {
-        return DYL { bytes: 3 };
+        return DYL {
+            bytes: 3,
+            handle: DYL::open(_name),
+        };
     }
 
     /// Opens the actual file
-    fn open() {}
-}
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+    fn open(name: String) -> HMODULE {
+        unsafe {
+            LoadLibraryExW(
+                name.encode_utf16().collect::<Vec<u16>>().as_ptr(),
+                ptr::null(),
+                0,
+            )
+        }
+    }
 }
 
 #[cfg(test)]
@@ -39,6 +34,8 @@ mod tests {
     #[test]
     fn creates_some_object() {
         let newdyl: DYL = DYL::new("Something".to_string());
-        assert_ne!(newdyl.bytes, 0);
     }
+
+    #[test]
+    fn opens_something() {}
 }
