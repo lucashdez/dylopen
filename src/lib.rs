@@ -1,3 +1,20 @@
+use std::ffi::c_void;
+use std::ptr;
+
+type LPCWSTR = *const u16;
+type DWORD = i32;
+type HMODULE = c_void;
+
+#[link(name = "kernel32")]
+#[no_mangle]
+extern "system" {
+    fn LoadLibraryExW(
+        name: LPCWSTR,
+        file_handle: c_void,
+        params: DWORD,
+    ) -> HMODULE;
+}
+
 struct DYL {
     bytes: usize,
 }
