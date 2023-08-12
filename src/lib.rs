@@ -9,17 +9,13 @@ struct DYL {
 }
 
 impl DYL {
-    pub fn new(_name: &str) -> Self {
+    pub fn new(name: &str) -> Self {
         return DYL {
             bytes: 3,
-            handle: DYL::open(_name),
+            handle: load_library(name).expect(
+                "Could not load the library while initializing the DYL",
+            ),
         };
-    }
-
-    /// Opens the actual file
-    fn open(name: &str) -> *const c_void {
-        load_library(name)
-            .expect(format!("Error in lib.rs. Line {}", line!()).as_str())
     }
 }
 
@@ -30,7 +26,11 @@ mod tests {
     #[test]
     fn creates_some_object() {
         let newdyl: DYL = DYL::new("./target/debug/libdylopen.rlib");
-        dbg!("AAAAAAAAAAAAAAAAAAAA");
+        let mut res = 1;
+        if newdyl.handle.is_null() {
+            res = 0;
+        }
+        assert_eq!(1, res);
     }
 
     #[test]
